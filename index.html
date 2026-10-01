@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description"
+        content="Cyber Overdrive - A high-octane cyberpunk arcade game. Catch ammo, evade Adam Smasher's Sandevistan, survive Night City!">
+    <title>CYBER OVERDRIVE | Night City Protocol</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Overlays -->
+        <div id="scanlines"></div>
+        <div id="vignette"></div>
+
+        <!-- Loading -->
+        <div id="loading-screen">
+            <div class="game-title" style="font-size: 26px; padding: 2px 20px;"><span>CYBER OVERDRIVE</span></div>
+            <div class="loading-bar-container">
+                <div class="loading-bar-fill" id="loading-bar"></div>
+            </div>
+            <div class="loading-text">INITIALIZING</div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-group">
+                <div class="hud-item">
+                    <span class="hud-label">SCORE</span>
+                    <span class="hud-value" id="hud-score">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">BEST</span>
+                    <span class="hud-value" id="hud-highscore"
+                        style="color: var(--neon-yellow); text-shadow: 0 0 8px var(--neon-yellow);">0</span>
+                </div>
+            </div>
+            <div class="hud-group">
+                <div class="hud-item">
+                    <span class="hud-label">COMBO</span>
+                    <span class="hud-value" id="hud-combo">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">MULTI</span>
+                    <span class="hud-value" id="hud-multiplier">x1</span>
+                </div>
+            </div>
+            <div class="hud-group">
+                <div class="hud-item">
+                    <span class="hud-label">LEVEL</span>
+                    <span class="hud-value" id="hud-level">1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">HP</span>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" id="hud-hp" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level indicator -->
+        <div id="level-indicator">LVL 1</div>
+        <div id="accuracy-display">ACC 100%</div>
+
+        <!-- Mute button -->
+        <button id="mute-btn">🔊 SFX</button>
+
+        <!-- Menu Screen -->
+        <div class="screen-overlay active" id="menu-screen">
+            <div class="screen-bg"></div>
+            <div class="screen-content">
+                <div class="menu-logo-wrapper">
+                    <img src="assets/background/logo.png" alt="CYBER OVERDRIVE" class="menu-logo" id="menu-logo">
+                </div>
+                <div class="game-subtitle">Night City // Smasher Protocol</div>
+                <div class="deco-line"></div>
+                <div class="game-tagline">
+                    Catch the ammo. Evade the Sandevistan.<br><em>Survive Adam Smasher.</em>
+                </div>
+                <button class="btn-neon btn-primary btn-play-pulse" id="btn-play" onclick="startGame()">▶ PLAY
+                    GAME</button>
+                <div class="start-hint">Press <kbd>SPACE</kbd> or <kbd>ENTER</kbd> or Click anywhere to Start</div>
+                <div class="high-score-display" id="menu-highscore">HIGH SCORE: 000000</div>
+                <div class="controls-info">
+                    <kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd> or Mouse<br>
+                    <kbd>SPACE</kbd> / <kbd>ENTER</kbd> Start &nbsp; <kbd>ESC</kbd> Pause &nbsp; <kbd>M</kbd> Mute
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div class="screen-overlay" id="pause-screen">
+            <div class="screen-bg"></div>
+            <div class="screen-content">
+                <div class="pause-title">PAUSED</div>
+                <div class="deco-line"></div>
+                <div class="btn-group">
+                    <button class="btn-neon btn-primary" onclick="resumeGame()">RESUME</button>
+                    <button class="btn-neon btn-small" onclick="restartGame()">RESTART</button>
+                    <button class="btn-neon btn-small btn-danger" onclick="goToMenu()">MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen-overlay" id="gameover-screen">
+            <div class="screen-bg"></div>
+            <div class="screen-content">
+                <div class="game-over-title">GAME OVER</div>
+                <div id="new-record" class="new-record" style="display:none;">★ NEW HIGH SCORE ★</div>
+                <div class="deco-line"></div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">SCORE</div>
+                        <div class="stat-value" id="go-score">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">BEST</div>
+                        <div class="stat-value highlight" id="go-best">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">MAX COMBO</div>
+                        <div class="stat-value" id="go-combo">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">ACCURACY</div>
+                        <div class="stat-value" id="go-accuracy">0%</div>
+                    </div>
+                </div>
+                <div class="deco-line"></div>
+                <div class="btn-group">
+                    <button class="btn-neon btn-primary btn-play-pulse" onclick="restartGame()">PLAY AGAIN</button>
+                    <div class="start-hint" style="margin-top: 6px;">Press <kbd>SPACE</kbd> or <kbd>ENTER</kbd> or
+                        <kbd>R</kbd> to Restart</div>
+                    <button class="btn-neon btn-small btn-danger" onclick="goToMenu()">MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Touch zones (mobile) -->
+        <div id="touch-left"></div>
+        <div id="touch-right"></div>
+    </div>
+
+    <!-- Scripts (order matters) -->
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/collision.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/background.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
